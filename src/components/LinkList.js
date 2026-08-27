@@ -1,5 +1,5 @@
 import React from 'react';
-import {useEffect, useRef, useState} from 'react';
+import { useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
 import debounce from 'lodash.debounce';
 import LinkListEmpty from './LinkListEmpty';
@@ -7,194 +7,222 @@ import LinkListExpired from './LinkListExpired';
 import './LinkList.css';
 import { getDomain, getHostname } from 'tldts';
 
-function copyLinks(element) {
+function copyLinks( element ) {
   const selection = window.getSelection();
-  const prevRange = selection.rangeCount ? selection.getRangeAt(0).cloneRange() : null;
-  const tmp = document.createElement('div');
-  const links = element.querySelectorAll('a');
-  for (let i = 0; i < links.length; i++) {
-    const clone = links[i].cloneNode(true);
-    delete (clone.dataset.reactid);
-    tmp.appendChild(clone);
-    tmp.appendChild(document.createElement('br'));
+  const prevRange = selection.rangeCount ? selection.getRangeAt( 0 ).cloneRange() : null;
+  const tmp = document.createElement( 'div' );
+  const links = element.querySelectorAll( 'a' );
+  for ( let i = 0; i < links.length; i++ ) {
+    const clone = links[i].cloneNode( true );
+    delete ( clone.dataset.reactid );
+    tmp.appendChild( clone );
+    tmp.appendChild( document.createElement( 'br' ) );
   }
-  document.body.appendChild(tmp);
+  document.body.appendChild( tmp );
   const copyFrom = document.createRange();
-  copyFrom.selectNodeContents(tmp);
+  copyFrom.selectNodeContents( tmp );
   selection.removeAllRanges();
-  selection.addRange(copyFrom);
-  document.execCommand('copy');
-  document.body.removeChild(tmp);
+  selection.addRange( copyFrom );
+  document.execCommand( 'copy' );
+  document.body.removeChild( tmp );
   selection.removeAllRanges();
-  if (prevRange) {
-    selection.addRange(prevRange);
+  if ( prevRange ) {
+    selection.addRange( prevRange );
   }
 }
 
-function groupLinksByDomain(links) {
-  const indexes = new Array(links.length);
-  const rh = new Array(links.length);
-  for (let i = 0; i < links.length; i++) {
+function groupLinksByDomain( links ) {
+  const indexes = new Array( links.length );
+  const rh = new Array( links.length );
+  for ( let i = 0; i < links.length; i++ ) {
     indexes[i] = i;
-    rh[i] = links[i].hostname.toLowerCase().split('.').reverse().join('.');
+    rh[i] = links[i].hostname.toLowerCase().split( '.' ).reverse().join( '.' );
   }
-  indexes.sort((i, j) => {
-    if (rh[i] < rh[j]) {
+  indexes.sort( ( i, j ) => {
+    if ( rh[i] < rh[j] ) {
       return -1;
     }
-    if (rh[i] > rh[j]) {
+    if ( rh[i] > rh[j] ) {
       return 1;
     }
     return i - j;
-  });
-  return indexes.map(i => links[i]);
+  } );
+  return indexes.map( i => links[i] );
 }
 
-function mapBlocked(links, blockedDomains) {
-  blockedDomains = new Set(blockedDomains);
-  return links.map(link => {
+function mapBlocked( links, blockedDomains ) {
+  blockedDomains = new Set( blockedDomains );
+  return links.map( link => {
     let hostname = link.hostname.toLowerCase();
     const dots = [];
-    for (let i = 0; i < hostname.length; i++) {
-      if (hostname[i] === '.') {
-        dots.push(i);
+    for ( let i = 0; i < hostname.length; i++ ) {
+      if ( hostname[i] === '.' ) {
+        dots.push( i );
       }
     }
-    if (blockedDomains.has(hostname)) {
+    if ( blockedDomains.has( hostname ) ) {
       return true;
     }
-    for (const dot of dots) {
-      if (blockedDomains.has(hostname.substr(dot + 1))) {
-        blockedDomains.add(hostname);
+    for ( const dot of dots ) {
+      if ( blockedDomains.has( hostname.substr( dot + 1 ) ) ) {
+        blockedDomains.add( hostname );
         return true;
       }
     }
     return false;
-  });
+  } );
 }
 
-function mapDuplicates(links) {
+function mapDuplicates( links ) {
   const uniq = new Set();
-  return links.map(link => {
-    if (uniq.has(link.href)) {
+  return links.map( link => {
+    if ( uniq.has( link.href ) ) {
       return true;
     }
-    uniq.add(link.href);
+    uniq.add( link.href );
     return false;
-  });
+  } );
 }
 
-function rejectSameOrigin(links, sourceUrl, hideSameOriginSubdomain) {
-  if (!sourceUrl) {
+function rejectSameOrigin( links, sourceUrl, hideSameOriginSubdomain ) {
+  if ( !sourceUrl ) {
     return links;
   }
-  if (!sourceUrl.startsWith('http://') && !sourceUrl.startsWith('https://')) {
-    return links;
-  }
-
-  const sourceRoot = getHostname(sourceUrl);
-
-  if (!sourceRoot) {
+  if ( !sourceUrl.startsWith( 'http://' ) && !sourceUrl.startsWith( 'https://' ) ) {
     return links;
   }
 
-  const formatLink = (link) => hideSameOriginSubdomain ? getDomain(link) : getHostname(link);
-  const formatSource = (source) => hideSameOriginSubdomain ? getDomain(source) : source;
-  return links.filter(link => formatLink(link.origin) !== formatSource(sourceRoot));
+  const sourceRoot = getHostname( sourceUrl );
+
+  if ( !sourceRoot ) {
+    return links;
+  }
+
+  const formatLink = ( link ) => hideSameOriginSubdomain ? getDomain( link ) : getHostname( link );
+  const formatSource = ( source ) => hideSameOriginSubdomain ? getDomain( source ) : source;
+  return links.filter( link => formatLink( link.origin ) !== formatSource( sourceRoot ) );
 }
 
-export default function LinkList(props) {
-  const linkListRef = useRef(null);
+export default function LinkList( props ) {
+  const linkListRef = useRef( null );
 
-  const [filter, setFilter] = useState('');
-  const [nextFilter, setNextFilter] = useState('');
-  const [groupByDomain, setGroupByDomain] = useState(false);
-  const [hideBlockedDomains, setHideBlockedDomains] = useState(true);
-  const [hideDuplicates, setHideDuplicates] = useState(true);
-  const [hideSameOrigin, setHideSameOrigin] = useState(false);
-  const [hideSameOriginSubdomain, setHideSameOriginSubdomain] = useState(false);
+  const [filter, setFilter] = useState( '' );
+  const [nextFilter, setNextFilter] = useState( '' );
+  const [groupByDomain, setGroupByDomain] = useState( false );
+  const [hideBlockedDomains, setHideBlockedDomains] = useState( true );
+  const [hideDuplicates, setHideDuplicates] = useState( true );
+  const [hideSameOrigin, setHideSameOrigin] = useState( true );
+  const [hideSameOriginSubdomain, setHideSameOriginSubdomain] = useState( true );
+  const [hideTextFragments, setHideTextFragments] = useState( true );
 
-  const applyFilter = debounce(() => setFilter(nextFilter), 100, { trailing: true });
-  const filterChanged = (event) => setNextFilter(event.target.value);
-  const toggleBlockedLinks = () => setHideBlockedDomains(x => !x);
-  const toggleDedup = () => setHideDuplicates(x => !x);
-  const toggleGroupByDomain = () => setGroupByDomain(x => !x);
+  const applyFilter = debounce( () => setFilter( nextFilter ), 100, { trailing: true } );
+  const filterChanged = ( event ) => setNextFilter( event.target.value );
+  const toggleBlockedLinks = () => setHideBlockedDomains( ( s ) => !s );
+  const toggleDedup = () => setHideDuplicates( ( s ) => !s );
+  const toggleGroupByDomain = () => setGroupByDomain( ( s ) => !s );
+  const toggleHideTextFragments = () => setHideTextFragments( ( s ) => !s );
 
   // If we toggle off hideSameOrigin we're also toggling off hideSubDomain
   const toggleHideSameOrigin = () => {
-    if (hideSameOriginSubdomain && hideSameOrigin) {
-      setHideSameOriginSubdomain(false);
+    if ( hideSameOriginSubdomain && hideSameOrigin ) {
+      setHideSameOriginSubdomain( false );
     }
-    setHideSameOrigin(x => !x);
+    setHideSameOrigin( ( s ) => !s );
   };
 
   // If hide we want to hide sub-domain we're also wanting to hide same domain
   const toggleHideSameOriginSubdomain = () => {
-    if (!hideSameOrigin && !hideSameOriginSubdomain) {
-      setHideSameOrigin(true);
+    if ( !hideSameOrigin && !hideSameOriginSubdomain ) {
+      setHideSameOrigin( true );
     }
-    setHideSameOriginSubdomain(x => !x);
+    setHideSameOriginSubdomain( ( s ) => !s );
   };
 
-  useEffect(() => {
-    const h = (event) => {
+  useEffect( () => {
+    const h = ( event ) => {
       const selection = window.getSelection();
-      if (selection.type === 'None' || selection.type === 'Caret') {
+      if ( selection.type === 'None' || selection.type === 'Caret' ) {
         copyLinks();
       }
     };
-    window.document.addEventListener('copy', h);
+    window.document.addEventListener( 'copy', h );
     return () => {
-      window.document.removeEventListener('copy', h);
+      window.document.removeEventListener( 'copy', h );
     };
-  }, []);
+  }, [] );
 
-  useEffect(applyFilter, [nextFilter]);
+  useEffect( applyFilter, [nextFilter] );
 
-  if (props.expired) {
-    return (<LinkListExpired />);
+  if ( props.expired ) {
+    return ( <LinkListExpired /> );
   }
 
-  let links = props.links.slice(0);
-  if (links.length === 0) {
-    return (<LinkListEmpty source={props.source} />);
+  let links = props.links.slice( 0 );
+  if ( links.length === 0 ) {
+    return ( <LinkListEmpty source={props.source} /> );
   }
 
   // Because of scope we have to pass hideSameOriginSubdomain into function
-  if (hideSameOrigin) {
-    links = rejectSameOrigin(links, props.source, hideSameOriginSubdomain);
+  if ( hideSameOrigin ) {
+    links = rejectSameOrigin( links, props.source, hideSameOriginSubdomain );
   }
-  if (groupByDomain) {
-    links = groupLinksByDomain(links);
+  if ( groupByDomain ) {
+    links = groupLinksByDomain( links );
   }
 
-  const blocked = mapBlocked(links, props.blockedDomains);
-  const duplicates = mapDuplicates(links);
+  // We pass search substring here.
+  // Break by comma; each piece is AND'd together.
+  // A `>` prefix on a piece negates it (must NOT match).
+  // Returns true when currentHref should be excluded.
+  function testAllInputs( str, currentHref ) {
+    const tests = str.split( ',' ).map( t => t.trim() ).filter( t => t.length > 0 );
+    for ( const test of tests ) {
+      const isNegated = test[0] === '>';
+      const needle = isNegated ? test.slice( 1 ).trim() : test;
+      if ( !needle ) {
+        continue;
+      }
+      const contains = currentHref.indexOf( needle ) >= 0;
+      if ( isNegated && contains ) {
+        return true; // banned term present
+      }
+      if ( !isNegated && !contains ) {
+        return true; // required term missing
+      }
+    }
+    return false;
+  }
+
+  const blocked = mapBlocked( links, props.blockedDomains );
+  const duplicates = mapDuplicates( links );
   const filterLowerCase = filter.trim().toLowerCase();
-  const items = links.reduce((memo, link, index) => {
-    if (hideDuplicates && duplicates[index]) {
+  const items = links.reduce( ( memo, link, index ) => {
+    const lowerHref = link.href.toLowerCase();
+    if ( hideDuplicates && duplicates[index] ) {
       return memo;
     }
-    if (hideBlockedDomains && blocked[index]) {
+    if ( hideBlockedDomains && blocked[index] ) {
       return memo;
     }
-    if (filterLowerCase) {
-      const lowerHref = link.href.toLowerCase();
-      if (lowerHref.indexOf(filterLowerCase) < 0) {
+    if ( filterLowerCase ) {
+      if ( testAllInputs( filterLowerCase, lowerHref ) ) return memo;
+    }
+    if ( hideTextFragments ) {
+      if ( lowerHref.indexOf( '#:~:text' ) >= 0 ) {
         return memo;
       }
     }
-    const itemClassName = cx('LinkListItem', {
+    const itemClassName = cx( 'LinkListItem', {
       'LinkListItem--blocked': blocked[index],
       'LinkListItem--duplicate': duplicates[index],
-    });
+    } );
     memo.push(
       <li key={index} className={itemClassName}>
         <a href={link.href} target="_blank">{link.href}</a>
       </li>
     );
     return memo;
-  }, []);
+  }, [] );
 
   return (
     <div className="container-fluid">
@@ -215,6 +243,9 @@ export default function LinkList(props) {
               <input type="checkbox" checked={hideSameOriginSubdomain} onChange={toggleHideSameOriginSubdomain} /> Hide same origin subdomain
             </label>
             <label className="checkbox-inline">
+              <input type="checkbox" checked={hideTextFragments} onChange={toggleHideTextFragments} /> Hide Text Fragments
+            </label>
+            <label className="checkbox-inline">
               <input type="checkbox" checked={groupByDomain} onChange={toggleGroupByDomain} /> Group by domain
             </label>
           </div>
@@ -222,7 +253,7 @@ export default function LinkList(props) {
             <input type="text" className="form-control" placeholder="substring filter" autoFocus value={nextFilter} onChange={filterChanged} />
           </div>
           <div className="form-group LinkPageStatus">
-            <button className="btn btn-default" disabled={items.length === 0} onClick={() => copyLinks(linkListRef.current)}>
+            <button className="btn btn-default" disabled={items.length === 0} onClick={() => copyLinks( linkListRef.current )}>
               Copy {items.length} / {props.links.length}
             </button>
           </div>

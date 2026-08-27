@@ -1,4 +1,13 @@
 {
+  "name": "linkfink",
+  "version": "0.1.0",
+  "description": "An easy to use extractor or grabber for hyperlinks on an HTML page",
+  "private": true,
+  "license": "MIT",
+  "scripts": {
+    "build": "esbuild src/*.js --bundle --loader:.js=jsx --outdir=js --sourcemap --splitting --format=esm",
+    "watch": "esbuild src/*.js --bundle --loader:.js=jsx --outdir=js --sourcemap --splitting --format=esm --watch"
+  },
   "dependencies": {
     "classnames": "~2.3.2",
     "lodash.debounce": "~4.0.8",
@@ -14,9 +23,5 @@
     "esbuild": "0.20.1",
     "eslint": "~8.57.0",
     "eslint-plugin-react": "~7.34.0"
-  },
-  "scripts": {
-    "build": "esbuild src/*.js --bundle --loader:.js=jsx --outdir=js --sourcemap --splitting --format=esm",
-    "watch": "esbuild src/*.js --bundle --loader:.js=jsx --outdir=js --sourcemap --splitting --format=esm --watch"
   }
 }
