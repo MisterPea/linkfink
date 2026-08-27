@@ -5,6 +5,7 @@ import debounce from 'lodash.debounce';
 import LinkListEmpty from './LinkListEmpty';
 import LinkListExpired from './LinkListExpired';
 import './LinkList.css';
+import { getDomain, getHostname } from 'tldts';
 
 function copyLinks(element) {
   const selection = window.getSelection();
@@ -83,19 +84,23 @@ function mapDuplicates(links) {
   });
 }
 
-function rejectSameOrigin(links, sourceUrl) {
+function rejectSameOrigin(links, sourceUrl, hideSameOriginSubdomain) {
   if (!sourceUrl) {
     return links;
   }
   if (!sourceUrl.startsWith('http://') && !sourceUrl.startsWith('https://')) {
     return links;
   }
-  const parser = document.createElement('a');
-  parser.href = sourceUrl;
-  if (!parser.origin) {
+
+  const sourceRoot = getHostname(sourceUrl);
+
+  if (!sourceRoot) {
     return links;
   }
-  return links.filter(link => link.origin !== parser.origin);
+
+  const formatLink = (link) => hideSameOriginSubdomain ? getDomain(link) : getHostname(link);
+  const formatSource = (source) => hideSameOriginSubdomain ? getDomain(source) : source;
+  return links.filter(link => formatLink(link.origin) !== formatSource(sourceRoot));
 }
 
 export default function LinkList(props) {
@@ -107,13 +112,29 @@ export default function LinkList(props) {
   const [hideBlockedDomains, setHideBlockedDomains] = useState(true);
   const [hideDuplicates, setHideDuplicates] = useState(true);
   const [hideSameOrigin, setHideSameOrigin] = useState(false);
+  const [hideSameOriginSubdomain, setHideSameOriginSubdomain] = useState(false);
 
-  const applyFilter = debounce(() => setFilter(nextFilter), 100, {trailing: true});
+  const applyFilter = debounce(() => setFilter(nextFilter), 100, { trailing: true });
   const filterChanged = (event) => setNextFilter(event.target.value);
   const toggleBlockedLinks = () => setHideBlockedDomains(x => !x);
   const toggleDedup = () => setHideDuplicates(x => !x);
   const toggleGroupByDomain = () => setGroupByDomain(x => !x);
-  const toggleHideSameOrigin = () => setHideSameOrigin(x => !x);
+
+  // If we toggle off hideSameOrigin we're also toggling off hideSubDomain
+  const toggleHideSameOrigin = () => {
+    if (hideSameOriginSubdomain && hideSameOrigin) {
+      setHideSameOriginSubdomain(false);
+    }
+    setHideSameOrigin(x => !x);
+  };
+
+  // If hide we want to hide sub-domain we're also wanting to hide same domain
+  const toggleHideSameOriginSubdomain = () => {
+    if (!hideSameOrigin && !hideSameOriginSubdomain) {
+      setHideSameOrigin(true);
+    }
+    setHideSameOriginSubdomain(x => !x);
+  };
 
   useEffect(() => {
     const h = (event) => {
@@ -139,8 +160,9 @@ export default function LinkList(props) {
     return (<LinkListEmpty source={props.source} />);
   }
 
+  // Because of scope we have to pass hideSameOriginSubdomain into function
   if (hideSameOrigin) {
-    links = rejectSameOrigin(links, props.source);
+    links = rejectSameOrigin(links, props.source, hideSameOriginSubdomain);
   }
   if (groupByDomain) {
     links = groupLinksByDomain(links);
@@ -188,6 +210,9 @@ export default function LinkList(props) {
             </label>
             <label className="checkbox-inline">
               <input type="checkbox" checked={hideSameOrigin} onChange={toggleHideSameOrigin} /> Hide same origin
+            </label>
+            <label className="checkbox-inline">
+              <input type="checkbox" checked={hideSameOriginSubdomain} onChange={toggleHideSameOriginSubdomain} /> Hide same origin subdomain
             </label>
             <label className="checkbox-inline">
               <input type="checkbox" checked={groupByDomain} onChange={toggleGroupByDomain} /> Group by domain
