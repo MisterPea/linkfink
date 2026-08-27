@@ -17,8 +17,8 @@ chrome.runtime.onInstalled.addListener(() => {
     chrome.storage.sync.set(options);
   });
   chrome.contextMenus.create({
-    id: 'Link Grabber',
-    title: 'Link Grabber',
+    id: 'Linkfink',
+    title: 'Linkfink',
     contexts: ['page'],
     documentUrlPatterns: ['http://*/*', 'https://*/*', 'file://*/*'],
   }, warnLastError);

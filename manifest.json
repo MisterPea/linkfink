@@ -1,7 +1,7 @@
 {
-  "name": "Link Grabber",
+  "name": "Linkfink",
   "manifest_version": 3,
-  "version": "0.6.1",
+  "version": "0.1.0",
   "description": "An easy to use extractor or grabber for hyperlinks on an HTML page",
   "permissions": [
     "activeTab",
@@ -27,10 +27,5 @@
   "action": {
     "default_icon": "/images/link_go_19.png",
     "default_title": "Extract the links on this page"
-  },
-  "browser_specific_settings": {
-    "gecko": {
-      "id": "linkgrabber@7fffffff.com"
-    }
   }
 }
