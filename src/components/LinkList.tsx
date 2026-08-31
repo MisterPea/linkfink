@@ -4,16 +4,24 @@ import cx from 'classnames';
 import debounce from 'lodash.debounce';
 import LinkListEmpty from './LinkListEmpty';
 import LinkListExpired from './LinkListExpired';
-import './LinkList.css';
+import './LinkList.scss';
 import { getDomain, getHostname } from 'tldts';
+import type { Link } from '../types';
 
-function copyLinks( element ) {
+type LinkListProps =
+  | { expired: true; }
+  | { expired: false; source: string; links: Link[]; blockedDomains: Set<string>; };
+
+function copyLinks( element: HTMLElement ) {
   const selection = window.getSelection();
+  if ( !selection ) {
+    return;
+  }
   const prevRange = selection.rangeCount ? selection.getRangeAt( 0 ).cloneRange() : null;
   const tmp = document.createElement( 'div' );
   const links = element.querySelectorAll( 'a' );
   for ( let i = 0; i < links.length; i++ ) {
-    const clone = links[i].cloneNode( true );
+    const clone = links[i].cloneNode( true ) as HTMLAnchorElement;
     delete ( clone.dataset.reactid );
     tmp.appendChild( clone );
     tmp.appendChild( document.createElement( 'br' ) );
@@ -31,7 +39,7 @@ function copyLinks( element ) {
   }
 }
 
-function groupLinksByDomain( links ) {
+function groupLinksByDomain( links: Link[] ): Link[] {
   const indexes = new Array( links.length );
   const rh = new Array( links.length );
   for ( let i = 0; i < links.length; i++ ) {
@@ -50,10 +58,10 @@ function groupLinksByDomain( links ) {
   return indexes.map( i => links[i] );
 }
 
-function mapBlocked( links, blockedDomains ) {
+function mapBlocked( links: Link[], blockedDomains: Set<string> ): boolean[] {
   blockedDomains = new Set( blockedDomains );
   return links.map( link => {
-    let hostname = link.hostname.toLowerCase();
+    const hostname = link.hostname.toLowerCase();
     const dots = [];
     for ( let i = 0; i < hostname.length; i++ ) {
       if ( hostname[i] === '.' ) {
@@ -73,7 +81,7 @@ function mapBlocked( links, blockedDomains ) {
   } );
 }
 
-function mapDuplicates( links ) {
+function mapDuplicates( links: Link[] ): boolean[] {
   const uniq = new Set();
   return links.map( link => {
     if ( uniq.has( link.href ) ) {
@@ -84,7 +92,7 @@ function mapDuplicates( links ) {
   } );
 }
 
-function rejectSameOrigin( links, sourceUrl, hideSameOriginSubdomain ) {
+function rejectSameOrigin( links: Link[], sourceUrl: string, hideSameOriginSubdomain: boolean ): Link[] {
   if ( !sourceUrl ) {
     return links;
   }
@@ -98,13 +106,13 @@ function rejectSameOrigin( links, sourceUrl, hideSameOriginSubdomain ) {
     return links;
   }
 
-  const formatLink = ( link ) => hideSameOriginSubdomain ? getDomain( link ) : getHostname( link );
-  const formatSource = ( source ) => hideSameOriginSubdomain ? getDomain( source ) : source;
+  const formatLink = ( link: string ) => hideSameOriginSubdomain ? getDomain( link ) : getHostname( link );
+  const formatSource = ( source: string ) => hideSameOriginSubdomain ? getDomain( source ) : source;
   return links.filter( link => formatLink( link.origin ) !== formatSource( sourceRoot ) );
 }
 
-export default function LinkList( props ) {
-  const linkListRef = useRef( null );
+export default function LinkList( props: LinkListProps ) {
+  const linkListRef = useRef<HTMLUListElement>( null );
 
   const [filter, setFilter] = useState( '' );
   const [nextFilter, setNextFilter] = useState( '' );
@@ -116,7 +124,7 @@ export default function LinkList( props ) {
   const [hideTextFragments, setHideTextFragments] = useState( true );
 
   const applyFilter = debounce( () => setFilter( nextFilter ), 100, { trailing: true } );
-  const filterChanged = ( event ) => setNextFilter( event.target.value );
+  const filterChanged = ( event: React.ChangeEvent<HTMLInputElement> ) => setNextFilter( event.target.value );
   const toggleBlockedLinks = () => setHideBlockedDomains( ( s ) => !s );
   const toggleDedup = () => setHideDuplicates( ( s ) => !s );
   const toggleGroupByDomain = () => setGroupByDomain( ( s ) => !s );
@@ -139,10 +147,10 @@ export default function LinkList( props ) {
   };
 
   useEffect( () => {
-    const h = ( event ) => {
+    const h = () => {
       const selection = window.getSelection();
-      if ( selection.type === 'None' || selection.type === 'Caret' ) {
-        copyLinks();
+      if ( selection && ( selection.type === 'None' || selection.type === 'Caret' ) && linkListRef.current ) {
+        copyLinks( linkListRef.current );
       }
     };
     window.document.addEventListener( 'copy', h );
@@ -158,9 +166,6 @@ export default function LinkList( props ) {
   }
 
   let links = props.links.slice( 0 );
-  if ( links.length === 0 ) {
-    return ( <LinkListEmpty source={props.source} /> );
-  }
 
   // Because of scope we have to pass hideSameOriginSubdomain into function
   if ( hideSameOrigin ) {
@@ -174,7 +179,7 @@ export default function LinkList( props ) {
   // Break by comma; each piece is AND'd together.
   // A `>` prefix on a piece negates it (must NOT match).
   // Returns true when currentHref should be excluded.
-  function testAllInputs( str, currentHref ) {
+  function testAllInputs( str: string, currentHref: string ): boolean {
     const tests = str.split( ',' ).map( t => t.trim() ).filter( t => t.length > 0 );
     for ( const test of tests ) {
       const isNegated = test[0] === '>';
@@ -196,7 +201,7 @@ export default function LinkList( props ) {
   const blocked = mapBlocked( links, props.blockedDomains );
   const duplicates = mapDuplicates( links );
   const filterLowerCase = filter.trim().toLowerCase();
-  const items = links.reduce( ( memo, link, index ) => {
+  const items = links.reduce<React.ReactNode[]>( ( memo, link, index ) => {
     const lowerHref = link.href.toLowerCase();
     if ( hideDuplicates && duplicates[index] ) {
       return memo;
@@ -226,40 +231,50 @@ export default function LinkList( props ) {
 
   return (
     <div className="container-fluid">
-      <h1 className="LinkPageHeader">{props.source}</h1>
+      <header>
+        <h1>Page Source:</h1>
+        <h1 className="LinkPageHeader">{props.source}</h1>
+      </header>
       <div className="clearfix">
-        <div className="form-inline LinkPageOptionsForm">
-          <div className="form-group">
-            <label className="checkbox-inline">
+        <div className="control-group">
+          <div className="control-group--user-inputs--checkboxes">
+            <label className="checkbox-element">
               <input type="checkbox" checked={hideDuplicates} onChange={toggleDedup} /> Hide duplicate links
             </label>
-            <label className="checkbox-inline">
+            <label className="checkbox-element">
               <input type="checkbox" checked={hideBlockedDomains} onChange={toggleBlockedLinks} /> Hide blocked links
             </label>
-            <label className="checkbox-inline">
-              <input type="checkbox" checked={hideSameOrigin} onChange={toggleHideSameOrigin} /> Hide same origin
-            </label>
-            <label className="checkbox-inline">
-              <input type="checkbox" checked={hideSameOriginSubdomain} onChange={toggleHideSameOriginSubdomain} /> Hide same origin subdomain
-            </label>
-            <label className="checkbox-inline">
-              <input type="checkbox" checked={hideTextFragments} onChange={toggleHideTextFragments} /> Hide Text Fragments
-            </label>
-            <label className="checkbox-inline">
+            <label className="checkbox-element">
               <input type="checkbox" checked={groupByDomain} onChange={toggleGroupByDomain} /> Group by domain
             </label>
+            <label className="checkbox-element">
+              <input type="checkbox" checked={hideSameOrigin} onChange={toggleHideSameOrigin} /> Hide same origin
+            </label>
+            <label className="checkbox-element">
+              <input type="checkbox" checked={hideSameOriginSubdomain} onChange={toggleHideSameOriginSubdomain} /> Hide same origin subdomain
+            </label>
+            <label className="checkbox-element">
+              <input type="checkbox" checked={hideTextFragments} onChange={toggleHideTextFragments} /> Hide Text Fragments
+            </label>
           </div>
-          <div className="form-group">
-            <input type="text" className="form-control" placeholder="substring filter" autoFocus value={nextFilter} onChange={filterChanged} />
-          </div>
-          <div className="form-group LinkPageStatus">
-            <button className="btn btn-default" disabled={items.length === 0} onClick={() => copyLinks( linkListRef.current )}>
-              Copy {items.length} / {props.links.length}
-            </button>
+          <div className="control-group--user-inputs--right-inputs">
+            <div className="control-group--user-inputs--right-inputs--filter">
+              <input type="text" className="substring-filter" placeholder="substring filter" autoFocus value={nextFilter} onChange={filterChanged} />
+            </div>
+            <div className="control-group--user-inputs--right-inputs--copy_open">
+              <button className="btn btn-default" disabled={items.length === 0} onClick={() => linkListRef.current && copyLinks( linkListRef.current )}>
+                {`Copy ${items.length} Links`}
+              </button>
+              <button className="btn btn-default" disabled={items.length === 0} onClick={() => linkListRef.current && copyLinks( linkListRef.current )}>
+                {`Open In New Tabs`}
+              </button>
+            </div>
           </div>
         </div>
       </div>
       <ul ref={linkListRef} className="LinkList">
+        {items.length === 0 && nextFilter && <li className="missing-list-element">Adjust Filter to View Links</li>}
+        {items.length === 0 && !nextFilter && <li className="missing-list-element">There Are No Links to Show</li>}
         {items}
       </ul>
     </div>

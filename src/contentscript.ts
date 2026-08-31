@@ -1,6 +1,8 @@
+import type {Link} from './types';
+
 (function () {
-  const elements = document.querySelectorAll('a:link:not([href^=javascript])');
-  const links = new Array(elements.length);
+  const elements = document.querySelectorAll<HTMLAnchorElement>('a:link:not([href^=javascript])');
+  const links: Link[] = new Array(elements.length);
   for (let i = 0; i < elements.length; i++) {
     links[i] = {
       hash: elements[i].hash,

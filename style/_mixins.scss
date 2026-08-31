@@ -1,0 +1,27 @@
+@use 'sass:map';
+
+$font-weights: (
+  light: 300,
+  medium-light: 400,
+  medium: 500,
+  bold: 700,
+);
+
+@mixin font-weight($weight) {
+  @if not map.has-key($font-weights, $weight) {
+    @error 'Unknown font weight `#{$weight}`. Expected one of #{map.keys($font-weights)}.';
+  }
+  font-weight: map.get($font-weights, $weight);
+}
+
+@mixin below-1200 {
+  @media (max-width: 1199px) {
+    @content;
+  }
+}
+
+@mixin below-850 {
+  @media (max-width: 849px) {
+    @content;
+  }
+}
