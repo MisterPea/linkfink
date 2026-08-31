@@ -1,0 +1,208 @@
+@use "../../style/mixins" as *;
+
+header {
+  h1 {
+    @include font-weight(medium);
+    margin: 0;
+    &:first-child {
+      font-size: 1rem;
+      color: var(--text-color-main);
+    }
+    &:last-child {
+      white-space: nowrap;
+      line-height: normal;
+      overflow-x: auto;
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+      padding-right: 1.5rem;
+      color: var(--text-color-main);
+      mask-image: linear-gradient(to right, black 90%, transparent 100%);
+      -webkit-mask-image: linear-gradient(to right, black 90%, transparent 100%);
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      &::-webkit-scrollbar {
+        display: none;
+      }
+    }
+  }
+}
+
+.control-group {
+  display: flex;
+  padding-bottom: 20px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--color-border-light);
+  gap: 20px;
+  @include below-850 {
+    row-gap: 20px;
+    flex-direction: column;
+  }
+}
+
+.control-group--user-inputs {
+  &--checkboxes {
+    flex: 0 1 auto;
+    min-width: 0;
+    display: grid;
+    column-gap: 20px;
+    grid-template-columns: repeat(3, minmax(0, max-content));
+    @include below-1200 {
+      grid-template-columns: repeat(2, minmax(0, max-content));
+    }
+    @include below-850 {
+      grid-template-columns: repeat(3, 1fr);
+      column-gap: unset;
+    }
+    .checkbox-element {
+      @include font-weight(medium-light);
+      height: fit-content;
+      align-self: center;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      cursor: pointer;
+      input {
+        cursor: pointer;
+      }
+    }
+  }
+  &--right-inputs {
+    display: flex;
+    align-items: center;
+    flex: 1 1 auto;
+    gap: 1rem;
+  }
+}
+
+.control-group--user-inputs--right-inputs {
+  .substring-filter {
+    width: 100%;
+    display: block;
+    flex: 1;
+  }
+  &--filter {
+    flex: 1;
+    width: 100%;
+    position: relative;
+    &::after {
+      content: "Comma-separated terms (AND). Prefix '>' to exclude";
+      font-size: 8px;
+      @include font-weight(medium-light);
+      letter-spacing: 1%;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      color: var(--text-color-main);
+    }
+  }
+  &--copy_open {
+    flex: 2;
+    width: 100%;
+    display: flex;
+    gap: 10px;
+  }
+  button {
+    width: 100%;
+    min-width: fit-content;
+    border: none;
+    background: none;
+    appearance: button;
+    backface-visibility: hidden;
+    background-color: var(--color-primary);
+    border-radius: 6px;
+    color: var(--text-color-inverse);
+    cursor: pointer;
+    height: 40px;
+    line-height: 1.15;
+    padding: 0 15px;
+    touch-action: manipulation;
+  }
+  input {
+    padding: 0.5rem;
+    min-width: 0;
+    width: 100%;
+    height: 40px;
+    border-radius: 6px;
+    border: 1px solid var(--color-border-gray);
+  }
+}
+
+.links-expired {
+  width: 100%;
+  h1 {
+    text-align: center;
+    margin: 0;
+    font-size: 1.5rem;
+  }
+  p {
+    text-align: center;
+    @include font-weight(medium-light);
+    font-size: 1rem;
+  }
+}
+
+.LinkList {
+  list-style: none;
+  padding-left: 0;
+}
+
+.LinkListItem {
+  padding-left: 0.5em;
+  padding-right: 0.5em;
+}
+
+.missing-list-element {
+  width: 100%;
+  text-align: center;
+  font-size: 1.5rem;
+  @include font-weight(medium-light);
+}
+
+.LinkListItem {
+  @include font-weight(medium-light);
+  letter-spacing: 1%;
+  padding: 0.625rem 0.5rem;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  & a {
+    color: var(--color-link);
+    text-decoration: none;
+    display: block;
+    width: 100%;
+  }
+  & a span {
+    background: linear-gradient(currentColor 0 0) bottom left/ var(--underline-width, 0%) 1px no-repeat;
+    transition: background-size 300ms cubic-bezier(0.22, 1, 0.36, 1);
+    transition-delay: 200ms;
+    display: inline-block;
+    padding: 0 0px 0.2em;
+  }
+  & a:active {
+    color: var(--color-link-active);
+  }
+  & a:hover {
+    --underline-width: 100%;
+  }
+  & a:visited {
+    color: var(--color-link-visited);
+  }
+  &:nth-child(odd) {
+    background-color: var(--color-row-stripe);
+    border-radius: 6px;
+  }
+}
+
+.LinkListItem--blocked > a {
+  color: var(--color-danger);
+}
+
+.LinkListItem--duplicate > a {
+  color: var(--color-border-gray);
+}
+
+.LinkListItem--blocked.LinkListItem--duplicate > a {
+  color: var(--color-border-light);
+}

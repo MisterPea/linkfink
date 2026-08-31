@@ -1,7 +1,12 @@
 import React, {useState} from 'react';
-import './Options.css';
+import './Options.scss';
 
-export default function Options(props) {
+interface OptionsProps {
+  blockedDomains: string[];
+  setBlockedDomains: (domains: string[]) => void;
+}
+
+export default function Options(props: OptionsProps) {
   return (
     <div className="container-fluid">
       <div className="row">
@@ -19,14 +24,15 @@ export default function Options(props) {
   );
 }
 
-function BlockedDomainsEditor(props) {
+function BlockedDomainsEditor(props: OptionsProps) {
   const [saved, setSaved] = useState(false);
 
-  const onSubmit = (event) => {
+  const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setSaved(false);
-    const formData = new FormData(event.target);
-    props.setBlockedDomains(formData.get('blockedDomains').split('\n'));
+    const formData = new FormData(event.currentTarget);
+    const blockedDomains = String(formData.get('blockedDomains') ?? '');
+    props.setBlockedDomains(blockedDomains.split('\n'));
     setSaved(true);
   };
 
@@ -44,7 +50,7 @@ function BlockedDomainsEditor(props) {
         <textarea
           className="form-control"
           name="blockedDomains"
-          rows="15"
+          rows={15}
           defaultValue={blockedDomainsText}
           />
       </div>

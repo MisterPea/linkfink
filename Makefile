@@ -5,7 +5,7 @@ watch: clean
 .PHONY: package
 package: build
 	mkdir -p dist
-	zip -x\*.DS_Store dist/linkgrabber.zip -r css html images js vendor manifest.json
+	zip -x\*.DS_Store dist/linkfink.zip -r style html images js vendor manifest.json
 
 .PHONY: build
 build: clean

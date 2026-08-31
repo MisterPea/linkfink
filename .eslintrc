@@ -4,18 +4,20 @@
       "version": "detect"
     }
   },
-  "parser": "@babel/eslint-parser",
+  "parser": "@typescript-eslint/parser",
   "plugins": [
-    "react"
+    "react",
+    "@typescript-eslint"
   ],
   "env": {
     "browser": true,
-    "node": true
+    "node": true,
+    "webextensions": true
   },
-  "globals": {
-    "chrome": true,
-  },
-  "extends": "eslint:recommended",
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended"
+  ],
   "rules": {
     "comma-dangle": [1, "always-multiline"],
     "jsx-quotes": [2, "prefer-double"],
@@ -30,14 +32,14 @@
     "react/no-deprecated": 2,
     "react/no-unknown-property": 2,
     "semi": [2, "always"],
-    "strict": [2, "global"],
     "quotes": [2, "single"],
     "no-console": 1,
-    "no-unused-vars": [2, {"args": "none"}]
+    "no-unused-vars": "off",
+    "@typescript-eslint/no-unused-vars": [2, {"args": "none"}]
   },
   "parserOptions": {
+    "sourceType": "module",
     "ecmaFeatures": {
-      "modules": true,
       "jsx": true
     }
   }

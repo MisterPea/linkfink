@@ -1,0 +1,31 @@
+@use "fonts";
+@use "mixins" as *;
+
+:root {
+  --text-color-main: #2e2e2e;
+  --text-color-inverse: #fff;
+  --color-primary: #405cf5;
+  --color-border-light: #ebccd1;
+  --color-border-gray: #aaa;
+  --color-link: #334463;
+  --color-link-active: rgb(61, 141, 61);
+  --color-link-visited: #89a5d7;
+  --color-row-stripe: hsla(231, 50%, 60%, 0.08);
+  --color-danger: #a94442;
+}
+
+html {
+  box-sizing: border-box;
+}
+*,
+*:before,
+*:after {
+  box-sizing: inherit;
+}
+
+body {
+  padding-bottom: 1em;
+  overflow-y: scroll;
+  font-family: fonts.$font-family-base;
+  @include font-weight(medium);
+}
