@@ -21,6 +21,8 @@ export interface SessionData {
 
 export interface Settings {
   blockedDomains: string[];
+  openLinksInTabs: boolean;
+  colorMode: 'light' | 'dark' | 'auto';
   [key: string]: unknown;
 }
 

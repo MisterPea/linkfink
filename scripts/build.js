@@ -9,7 +9,6 @@ const entryPoints = [
   'src/service_worker.ts',
   'src/contentscript.ts',
   'src/links.tsx',
-  'src/options.tsx',
 ];
 
 function buildGlobalStyles() {

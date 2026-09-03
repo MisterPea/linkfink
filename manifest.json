@@ -8,16 +8,13 @@
     "clipboardWrite",
     "contextMenus",
     "scripting",
-    "storage"
+    "storage",
+    "windows"
   ],
   "host_permissions": [
     "<all_urls>"
   ],
   "incognito": "split",
-  "options_ui": {
-    "browser_style": false,
-    "page": "/html/options.html"
-  },
   "icons": {
     "16": "/images/link_go_16.png",
     "32": "/images/link_go_32.png",

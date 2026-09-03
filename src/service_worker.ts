@@ -1,7 +1,9 @@
 import type {Settings, SessionData, LinksFoundMessage} from './types';
 
 const DEFAULT_SETTINGS: Settings = {
-  blockedDomains: ['bad1.example.com', 'bad2.example.com', 'bad4.example.com'],
+  blockedDomains: [],
+  openLinksInTabs: true,
+  colorMode: 'auto',
 };
 
 const DEFAULT_SESSION: SessionData = {
@@ -26,8 +28,14 @@ chrome.runtime.onInstalled.addListener(() => {
   }, warnLastError);
 });
 
+const linksPageUrl = chrome.runtime.getURL('html/links.html');
+
 chrome.action.onClicked.addListener((tab) => {
   if (tab.id == null) {
+    return;
+  }
+  if (tab.url && tab.url.startsWith(linksPageUrl)) {
+    chrome.tabs.sendMessage(tab.id, {type: 'open-settings'});
     return;
   }
   chrome.scripting.executeScript({

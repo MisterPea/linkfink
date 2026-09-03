@@ -4,7 +4,7 @@ $font-weights: (
   light: 300,
   medium-light: 400,
   medium: 500,
-  bold: 700,
+  bold: 600,
 );
 
 @mixin font-weight($weight) {
@@ -24,4 +24,18 @@ $font-weights: (
   @media (max-width: 849px) {
     @content;
   }
+}
+
+@mixin dark-theme-vars {
+  --bg-color-main: #1a1a1a;
+  --text-color-main: #e4e4e4;
+  --text-color-inverse: #1a1a1a;
+  --color-primary: rgb(0, 145, 255);
+  --color-border-light: #4a3a3d;
+  --color-border-gray: #666;
+  --color-link: hsl(224, 60%, 85%);
+  --color-link-active: rgb(112, 200, 112);
+  --color-link-visited: #68759a;
+  --color-row-stripe: hsla(231, 50%, 70%, 0.05);
+  --color-danger: #e88a85;
 }

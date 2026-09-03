@@ -1,5 +1,68 @@
 @use "../../style/mixins" as *;
 
+.container-fluid {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.LinkListHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+
+  &--title {
+    min-width: 0;
+    flex: 1 1 auto;
+  }
+}
+
+.SettingsGearButton {
+  aspect-ratio: 1;
+  width: 2rem;
+  height: 2rem;
+
+  &:hover {
+    background-color: var(--color-row-stripe);
+  }
+}
+
+.SettingsModalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.SettingsModal {
+  position: relative;
+  width: min(90vw, 560px);
+  max-height: 85vh;
+  overflow-y: auto;
+  background: var(--bg-color-main);
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+}
+
+.SettingsModalClose {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  width: 1.75rem;
+  height: 1.75rem;
+  border: none;
+  background: none;
+  color: var(--text-color-main);
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
 header {
   h1 {
     @include font-weight(medium);
@@ -96,14 +159,14 @@ header {
     }
   }
   &--copy_open {
-    flex: 2;
+    flex: 1;
     width: 100%;
     display: flex;
     gap: 10px;
   }
   button {
     width: 100%;
-    min-width: fit-content;
+    min-width: 0;
     border: none;
     background: none;
     appearance: button;
@@ -116,6 +179,22 @@ header {
     line-height: 1.15;
     padding: 0 15px;
     touch-action: manipulation;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    @include font-weight(medium);
+    &.settings {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-shrink: 0;
+      width: 40px;
+      min-width: 40px;
+      padding: 10px;
+      svg {
+        fill: var(--text-color-inverse);
+      }
+    }
   }
   input {
     padding: 0.5rem;
@@ -124,11 +203,17 @@ header {
     height: 40px;
     border-radius: 6px;
     border: 1px solid var(--color-border-gray);
+    background-color: var(--bg-color-main);
+    color: var(--text-color-main);
   }
 }
 
 .links-expired {
   width: 100%;
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   h1 {
     text-align: center;
     margin: 0;
@@ -144,6 +229,9 @@ header {
 .LinkList {
   list-style: none;
   padding-left: 0;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
 }
 
 .LinkListItem {

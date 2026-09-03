@@ -1,0 +1,19 @@
+@use "../../style/mixins" as *;
+
+.AppFooter {
+  margin-top: 20px;
+  padding: 12px 0 20px;
+  text-align: center;
+  font-size: 0.75rem;
+  @include font-weight(light);
+
+  a {
+    color: var(--color-link);
+  }
+  a:hover {
+    text-decoration: underline;
+  }
+  a:visited {
+    color: var(--color-link-visited);
+  }
+}

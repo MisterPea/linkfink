@@ -2,9 +2,10 @@
 @use "mixins" as *;
 
 :root {
+  --bg-color-main: #fff;
   --text-color-main: #2e2e2e;
   --text-color-inverse: #fff;
-  --color-primary: #405cf5;
+  --color-primary: rgb(0, 136, 255);
   --color-border-light: #ebccd1;
   --color-border-gray: #aaa;
   --color-link: #334463;
@@ -14,8 +15,19 @@
   --color-danger: #a94442;
 }
 
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    @include dark-theme-vars;
+  }
+}
+
+:root[data-theme="dark"] {
+  @include dark-theme-vars;
+}
+
 html {
   box-sizing: border-box;
+  height: 100%;
 }
 *,
 *:before,
@@ -24,8 +36,15 @@ html {
 }
 
 body {
-  padding-bottom: 1em;
-  overflow-y: scroll;
+  height: 100%;
+  margin: 0.75rem 1rem 0;
+  overflow: hidden;
+  background-color: var(--bg-color-main);
+  color: var(--text-color-main);
   font-family: fonts.$font-family-base;
   @include font-weight(medium);
+}
+
+#LinkList {
+  height: 100%;
 }
