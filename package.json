@@ -1,6 +1,6 @@
 {
   "name": "linkfink",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "An easy to use extractor or grabber for hyperlinks on an HTML page",
   "private": true,
   "license": "MIT",
@@ -24,7 +24,7 @@
     "@types/react-dom": "^18.3.7",
     "@typescript-eslint/eslint-plugin": "^8.68.0",
     "@typescript-eslint/parser": "^8.68.0",
-    "esbuild": "0.20.1",
+    "esbuild": "^0.25.0",
     "esbuild-sass-plugin": "^3.3.1",
     "eslint": "~8.57.0",
     "eslint-plugin-react": "~7.34.0",

@@ -7,6 +7,10 @@ export default function Footer() {
       <a href="https://github.com/MisterPea/linkfink" target="_blank" rel="noreferrer">
         Linkfink Github
       </a>
+      <span> • </span>
+      <a href="https://github.com/MisterPea/linkfink/issues" target="_blank" rel="noreferrer">
+        Issues / Suggestions
+      </a>
     </footer>
   );
 }

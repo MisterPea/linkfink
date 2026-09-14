@@ -1,8 +1,8 @@
 {
   "name": "Linkfink",
   "manifest_version": 3,
-  "version": "0.1.0",
-  "description": "An easy to use extractor or grabber for hyperlinks on an HTML page",
+  "version": "0.1.1",
+  "description": "An easy to use extractor (or grabber) for hyperlinks on an HTML page",
   "permissions": [
     "activeTab",
     "clipboardWrite",
@@ -10,9 +10,6 @@
     "scripting",
     "storage",
     "windows"
-  ],
-  "host_permissions": [
-    "<all_urls>"
   ],
   "incognito": "split",
   "icons": {
