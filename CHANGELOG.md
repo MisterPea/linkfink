@@ -9,7 +9,7 @@ Version numbering restarts at `0.1.0` with the fork/rename below — see
 [README.md § Fork](README.md) for the pre-rename history under the
 original project name.
 
-## [Unreleased]
+## [0.1.1] - 2026-09-14
 
 ### Changed
 - Removed the `<all_urls>` host permission from `manifest.json`; the
@@ -20,7 +20,6 @@ original project name.
   allowing any website to send requests to the esbuild dev server and read
   the response. Dev-server-only; no production impact. No breaking changes
   encountered — build and typecheck verified.
-- Bumped extension version `0.1.0` → `0.1.1`.
 
 ### Added
 - Footer: "Issues / Suggestions" link alongside the existing GitHub link.
