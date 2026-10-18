@@ -9,6 +9,14 @@ Version numbering restarts at `0.1.0` with the fork/rename below — see
 [README.md § Fork](README.md) for the pre-rename history under the
 original project name.
 
+## [0.1.2] - 2026-10-18
+
+### Security
+- Patched transitive dev dependencies
+  (lockfile-only; no direct dependency ranges changed):
+  - `brace-expansion` `1.1.18` → `1.1.21` and `5.0.9` → `5.0.12`
+  - `source-map-js` `1.2.1` → `1.2.2`
+
 ## [0.1.1] - 2026-09-14
 
 ### Changed

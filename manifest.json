@@ -1,7 +1,7 @@
 {
   "name": "Linkfink",
   "manifest_version": 3,
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "An easy to use extractor (or grabber) for hyperlinks on an HTML page",
   "permissions": [
     "activeTab",

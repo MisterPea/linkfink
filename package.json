@@ -1,6 +1,6 @@
 {
   "name": "linkfink",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "An easy to use extractor or grabber for hyperlinks on an HTML page",
   "private": true,
   "license": "MIT",
