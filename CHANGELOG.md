@@ -9,6 +9,16 @@ Version numbering restarts at `0.1.0` with the fork/rename below — see
 [README.md § Fork](README.md) for the pre-rename history under the
 original project name.
 
+## [Unreleased]
+
+### Security
+- Patched dev dependencies via `npm audit fix`
+  (lockfile-only; no direct dependency ranges changed):
+  - `@typescript-eslint/*` `8.68.0` → `8.73.0`
+  - `brace-expansion` `5.0.12` → `5.0.13`
+  - `minimatch` `10.2.6` → `11.0.9` (now requires Node 20+ for linting)
+  - `semver` `7.8.5` → `7.8.6`
+
 ## [0.1.2] - 2026-10-18
 
 ### Security
